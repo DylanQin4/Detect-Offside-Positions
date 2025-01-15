@@ -1,5 +1,7 @@
 # Detect Offside Positions in Football Images
 
+![Example Image](src/itu/ressources/static/images/exemple.png)
+
 Ce projet est une application de traitement d'images qui détecte les positions de hors-jeu dans des images de football à l'aide d'OpenCV. L'application analyse une image, détecte les joueurs et le ballon, puis détermine la ligne de hors-jeu en fonction des positions des joueurs et du ballon.
 
 ## Prérequis
