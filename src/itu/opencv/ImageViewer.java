@@ -5,6 +5,7 @@ import org.opencv.core.Mat;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 
 public class ImageViewer {
 
@@ -25,11 +26,19 @@ public class ImageViewer {
 
     // Méthode pour convertir Mat en BufferedImage
     public static BufferedImage matToBufferedImage(Mat mat) {
-        int type = (mat.channels() > 1) ? BufferedImage.TYPE_3BYTE_BGR : BufferedImage.TYPE_BYTE_GRAY;
+        int type = BufferedImage.TYPE_BYTE_GRAY;
+        if (mat.channels() > 1) {
+            type = BufferedImage.TYPE_3BYTE_BGR;
+        }
+
+        int bufferSize = mat.channels() * mat.cols() * mat.rows();
+        byte[] buffer = new byte[bufferSize];
+        mat.get(0, 0, buffer);
+
         BufferedImage image = new BufferedImage(mat.cols(), mat.rows(), type);
-        byte[] data = new byte[mat.cols() * mat.rows() * mat.channels()];
-        mat.get(0, 0, data);
-        image.getRaster().setDataElements(0, 0, mat.cols(), mat.rows(), data);
+        final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        System.arraycopy(buffer, 0, targetPixels, 0, buffer.length);
+
         return image;
     }
 }
