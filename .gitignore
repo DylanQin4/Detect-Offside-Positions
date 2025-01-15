@@ -31,3 +31,4 @@ bin/
 .DS_Store
 
 /build/
+src/itu/ressources/static/images/result.png

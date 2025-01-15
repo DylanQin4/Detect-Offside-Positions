@@ -106,8 +106,8 @@ public class ImageProcessor {
         boolean isAttackingUp = isBlueAttacking ? isBlueAttackingUp : isRedAttackingUp;
 
         // Trouver les deux derniers défenseurs dans le camp défensif
-        defendingTeam.sort((p1, p2) -> Double.compare(isAttackingUp ? p2.getPosition().y : p1.getPosition().y,
-                isAttackingUp ? p1.getPosition().y : p2.getPosition().y));
+        defendingTeam.sort((p1, p2) -> Double.compare(isAttackingUp ? p2.position().y : p1.position().y,
+                isAttackingUp ? p1.position().y : p2.position().y));
 
         if (defendingTeam.size() < 2) {
             System.out.println("Pas assez de défenseurs détectés pour tracer la ligne de hors-jeu.");
@@ -118,7 +118,7 @@ public class ImageProcessor {
         DetectedObject secondLastDefender = defendingTeam.get(1);
 
         // Trouver la ligne de hors-jeu
-        double offsideLineY = isAttackingUp ? secondLastDefender.getPosition().y + secondLastDefender.getRadius() : secondLastDefender.getPosition().y - secondLastDefender.getRadius();
+        double offsideLineY = isAttackingUp ? secondLastDefender.position().y + secondLastDefender.radius() : secondLastDefender.position().y - secondLastDefender.radius();
 
         // Identifier les joueurs attaquants hors-jeu
         List<DetectedObject> offsidePlayers = getOffsidePlayers(attackingTeam, offsideLineY, isAttackingUp);
@@ -126,9 +126,9 @@ public class ImageProcessor {
         for (DetectedObject attacker : offsidePlayers) {
             if (attacker.equals(closestToBall)) {
                 if (isAttackingUp) {
-                    offsideLineY = attacker.getPosition().y + attacker.getRadius();
+                    offsideLineY = attacker.position().y + attacker.radius();
                 } else {
-                    offsideLineY = attacker.getPosition().y - attacker.getRadius();
+                    offsideLineY = attacker.position().y - attacker.radius();
                 }
                 Imgproc.line(image, new Point(0, offsideLineY), new Point(image.width(), offsideLineY), new Scalar(0, 255, 0), 2);
                 System.out.println("Ligne de hors-jeu déplacée à Y = " + offsideLineY);
@@ -143,9 +143,9 @@ public class ImageProcessor {
 
         for (DetectedObject attacker : offsidePlayers) {
             if (!attacker.equals(closestToBall)) {
-                Imgproc.putText(image, "HJ", new Point(attacker.getPosition().x + 10, attacker.getPosition().y - 10),
+                Imgproc.putText(image, "HJ", new Point(attacker.position().x + 10, attacker.position().y - 10),
                         Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 255), 1);
-                System.out.println("Joueur hors-jeu détecté à : " + attacker.getPosition());
+                System.out.println("Joueur hors-jeu détecté à : " + attacker.position());
             }
         }
     }
@@ -161,7 +161,7 @@ public class ImageProcessor {
     private static List<DetectedObject> getOffsidePlayers(List<DetectedObject> attackers, double offsideLinePosition, boolean attackingUp) {
         return attackers.stream()
                 .filter(player -> {
-                    double playerY = attackingUp? player.getPosition().y + player.getRadius() : player.getPosition().y - player.getRadius();
+                    double playerY = attackingUp? player.position().y + player.radius() : player.position().y - player.radius();
 
                     // Si l'équipe attaque vers le haut, les joueurs hors-jeu sont au-dessus (plus petit Y que la ligne)
                     if (attackingUp) {
@@ -191,16 +191,16 @@ public class ImageProcessor {
 
         // Trouver le joueur le plus haut (plus petite valeur Y) et le joueur le plus bas (plus grande valeur Y)
         DetectedObject highestPlayer = players.stream()
-                .min(Comparator.comparingDouble(player -> player.getPosition().y))
+                .min(Comparator.comparingDouble(player -> player.position().y))
                 .get();
 
         DetectedObject lowestPlayer = players.stream()
-                .max(Comparator.comparingDouble(player -> player.getPosition().y))
+                .max(Comparator.comparingDouble(player -> player.position().y))
                 .get();
 
         // Calcul des distances
-        double distanceToTop = highestPlayer.getPosition().y; // Distance du joueur le plus haut au haut de l'image
-        double distanceToBottom = imageHeight - lowestPlayer.getPosition().y; // Distance du joueur le plus bas au bas de l'image
+        double distanceToTop = highestPlayer.position().y; // Distance du joueur le plus haut au haut de l'image
+        double distanceToBottom = imageHeight - lowestPlayer.position().y; // Distance du joueur le plus bas au bas de l'image
 
         // Le gardien de but est généralement plus proche de sa propre ligne de but
         return distanceToTop < distanceToBottom;
@@ -226,8 +226,8 @@ public class ImageProcessor {
         double minDistance = Double.MAX_VALUE;
 
         for (DetectedObject player : allPlayers) {
-            double distance = Math.sqrt(Math.pow(player.getPosition().x - ball.getPosition().x, 2)
-                    + Math.pow(player.getPosition().y - ball.getPosition().y, 2));
+            double distance = Math.sqrt(Math.pow(player.position().x - ball.position().x, 2)
+                    + Math.pow(player.position().y - ball.position().y, 2));
             if (distance < minDistance) {
                 minDistance = distance;
                 closestPlayer = player;
