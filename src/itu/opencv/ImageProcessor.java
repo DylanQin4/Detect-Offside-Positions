@@ -5,14 +5,14 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.swing.JOptionPane;
+
+import static itu.opencv.ImageViewer.matToBufferedImage;
+import static itu.opencv.ImageViewer.showImage;
 
 public class ImageProcessor {
 
@@ -20,10 +20,15 @@ public class ImageProcessor {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
     }
 
-    public static void processAndShowImage() {
+    public static void processAndShowImage(File imageFile) {
+        Mat image;
         // Charger l'image
-        String relativePath = "src/itu/ressources/static/images/8.jpeg";
-        Mat image = Imgcodecs.imread(relativePath);
+        if (imageFile == null) {
+            String relativePath = "src/itu/ressources/static/images/8.jpeg";
+            image = Imgcodecs.imread(relativePath);
+        } else {
+            image = Imgcodecs.imread(imageFile.getAbsolutePath());
+        }
 
         // Vérifier si l'image a été chargée
         if (image.empty()) {
@@ -37,11 +42,11 @@ public class ImageProcessor {
 
         // Détection des joueurs bleus
         List<DetectedObject> bluePlayers = detectPlayers(hsvImage, new Scalar(100, 150, 50), new Scalar(140, 255, 255));
-        System.out.println("Joueurs bleus : " + bluePlayers);
+        System.out.println("Nombre de joueurs bleus : " + bluePlayers.size());
 
         // Détection des joueurs rouges
         List<DetectedObject> redPlayers = detectPlayers(hsvImage, new Scalar(-10, 150, 150), new Scalar(10, 255, 255)); // Rouge primaire
-        System.out.println("Joueurs rouges : " + redPlayers);
+        System.out.println("Nombre de joueurs rouges : " + redPlayers.size());
 
         // Détection de la balle noire
         List<DetectedObject> blackBall = detectPlayers(hsvImage, new Scalar(0, 0, 0), new Scalar(180, 255, 50));
@@ -57,6 +62,9 @@ public class ImageProcessor {
         String outputPath = "src/itu/ressources/static/images/result.png";
         Imgcodecs.imwrite(outputPath, resultImage);
         System.out.println("Image générée et sauvegardée à : " + outputPath);
+
+        // Afficher l'image générée
+        showImage("Image Originale", matToBufferedImage(resultImage));
     }
 
     /**
@@ -74,8 +82,8 @@ public class ImageProcessor {
         }
 
         // Déterminer le sens d'attaque pour chaque équipe
-        boolean isBlueAttackingUp = isTeamAttackingUp(bluePlayers, image.height());;
-        boolean isRedAttackingUp = isTeamAttackingUp(redPlayers, image.height());;
+        boolean isBlueAttackingUp = isTeamAttackingUp(bluePlayers, image.height());
+        boolean isRedAttackingUp = isTeamAttackingUp(redPlayers, image.height());
 
         if (isBlueAttackingUp == isRedAttackingUp) {
             System.out.println("Impossible de déterminer le sens d'attaque : incohérence détectée.");
@@ -106,7 +114,7 @@ public class ImageProcessor {
             return;
         }
 
-        DetectedObject lastDefender = defendingTeam.get(0);
+        // DetectedObject lastDefender = defendingTeam.get(0);
         DetectedObject secondLastDefender = defendingTeam.get(1);
 
         // Trouver la ligne de hors-jeu
