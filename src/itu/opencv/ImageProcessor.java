@@ -142,9 +142,8 @@ public class ImageProcessor {
         System.out.println("Ligne de hors-jeu tracée à Y = " + offsideLineY);
 
         for (DetectedObject attacker : offsidePlayers) {
-            if (!attacker.equals(closestToBall)) {
-                Imgproc.putText(image, "HJ", new Point(attacker.position().x + 10, attacker.position().y - 10),
-                        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 255, 255), 1);
+            if (!attacker.equals(closestToBall)) {Imgproc.putText(image, "HJ", new Point(attacker.position().x + 10, attacker.position().y - 10),
+                    Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 0, 0), 2);
                 System.out.println("Joueur hors-jeu détecté à : " + attacker.position());
             }
         }
