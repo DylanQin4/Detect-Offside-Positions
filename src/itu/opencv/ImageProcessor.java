@@ -36,6 +36,11 @@ public class ImageProcessor {
             return;
         }
 
+        // Inverser l'image verticalement
+        if (image.height() < image.width()) {
+            Core.rotate(image, image, Core.ROTATE_90_CLOCKWISE);
+        }
+
         // Convertir en HSV
         Mat hsvImage = new Mat();
         Imgproc.cvtColor(image, hsvImage, Imgproc.COLOR_BGR2HSV);
