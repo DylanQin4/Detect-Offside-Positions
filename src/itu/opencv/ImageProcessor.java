@@ -37,9 +37,9 @@ public class ImageProcessor {
         }
 
         // Inverser l'image verticalement
-        if (image.height() < image.width()) {
-            Core.rotate(image, image, Core.ROTATE_90_CLOCKWISE);
-        }
+//        if (image.height() < image.width()) {
+//            Core.rotate(image, image, Core.ROTATE_90_CLOCKWISE);
+//        }
 
         // Convertir en HSV
         Mat hsvImage = new Mat();
@@ -147,9 +147,38 @@ public class ImageProcessor {
         System.out.println("Ligne de hors-jeu tracée à Y = " + offsideLineY);
 
         for (DetectedObject attacker : offsidePlayers) {
-            if (!attacker.equals(closestToBall)) {Imgproc.putText(image, "HJ", new Point(attacker.position().x + 10, attacker.position().y - 10),
-                    Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 0, 0), 2);
+            if (!attacker.equals(closestToBall)) {
+                Imgproc.putText(
+                        image,
+                        "HJ",
+                        new Point(attacker.position().x + 10, attacker.position().y - 10),
+                        Imgproc.FONT_HERSHEY_SIMPLEX, 0.5, new Scalar(0, 0, 0), 2
+                );
                 System.out.println("Joueur hors-jeu détecté à : " + attacker.position());
+            }
+        }
+
+        for (DetectedObject teammate : attackingTeam) {
+            if (!offsidePlayers.contains(teammate) && !teammate.equals(closestToBall)) {
+                // Vérifier si le joueur est en avant du joueur avec le ballon selon la direction d'attaque
+                boolean isTeammateInFront = isAttackingUp
+                        ? teammate.position().y > closestToBall.position().y
+                        : teammate.position().y < closestToBall.position().y;
+
+                if (isTeammateInFront) {
+                    // Tracer une flèche entre le joueur avec le ballon et ce coéquipier
+                    Imgproc.arrowedLine(
+                            image,
+                            new Point(closestToBall.position().x, closestToBall.position().y),
+                            new Point(teammate.position().x, teammate.position().y),
+                            new Scalar(50, 50, 50), // Couleur de la flèche (bleu)
+                            1, // Épaisseur de la ligne
+                            Imgproc.LINE_AA, // Type de ligne
+                            0, // Pas de décalage
+                            0.1 // Taille de la tête de la flèche
+                    );
+//                    System.out.println("Flèche tracée pour une passe à : " + teammate.position());
+                }
             }
         }
     }
